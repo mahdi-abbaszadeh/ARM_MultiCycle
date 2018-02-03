@@ -1,0 +1,36 @@
+module io_module (
+	input logic clk_50, clk_pb, reset,
+	output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7,
+	output logic LCD_ON,    // LCD Power ON/OFF
+	output logic LCD_BLON,    // LCD Back Light ON/OFF
+	output logic LCD_RW,    // LCD Read/Write Select, 0 = Write, 1 = Read
+	output logic LCD_EN,    // LCD Enable
+	output logic LCD_RS,    // LCD Command/Data Select, 0 = Command, 1 = Data
+	inout logic [7:0] LCD_DATA    // LCD Data bus 8 bits 
+);
+	arm_multi arm(clk_pb, ~reset, WriteData, Adr, MemWrite, 
+		SrcA, SrcB, ALUResult, PC, Instr, state);
+
+	//src B
+	seven_seg_driver S0 (SrcB[3:0], HEX0);
+	seven_seg_driver S1 (SrcB[7:4], HEX1);
+
+	//src A
+	seven_seg_driver S2 (SrcA[3:0], HEX2);
+	seven_seg_driver S3 (SrcA[7:4], HEX3);
+
+	// ALU result
+	seven_seg_driver S4 (ALUResult[3:0], HEX4);
+	seven_seg_driver S5 (ALUResult[7:4], HEX5);
+
+	//PC
+	seven_seg_driver S6 (PC[3:0], HEX6);
+	seven_seg_driver S7 (PC[7:4], HEX7);
+
+
+	//lcd driver
+	lcd_driver lcd(clk_50, Instr, state, LCD_ON, LCD_BLON, LCD_RW, LCD_EN, LCD_RS, LCD_DATA);
+
+
+
+endmodule
